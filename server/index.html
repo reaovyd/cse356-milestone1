@@ -1,0 +1,24 @@
+<!DOCType html>
+<html>
+    <head>
+        <script>
+            var eventSource = new EventSource("http://localhost:8080/api/connect/213")
+            eventSource.addEventListener("sync", (e) => {
+                const thing = document.getElementById("container")
+                const item = document.createElement("p")
+                item.textContent = e.data
+                thing.appendChild(item)
+            })
+            eventSource.addEventListener("update", (e) => {
+                const thing = document.getElementById("container")
+                const item = document.createElement("p")
+                item.textContent = e.data
+                thing.appendChild(item)
+            })
+        </script>
+    </head>
+    <body>
+        <div id="container">
+        </div>
+    </body>
+</html>
