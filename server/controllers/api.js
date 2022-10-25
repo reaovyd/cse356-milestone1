@@ -1,11 +1,17 @@
 const api = require("express").Router()
+const EventEmitter = require("events").EventEmitter
+const em = new EventEmitter() 
 
-d = {}
-all_ops = {}
 
-api.get("/connect/:id", async(req, res) => {
-    console.log("Client connected to", req.params.id)
-    let newConnect = true
+em.on("new_conn", (data, res) => {
+    if(d[data.id] == undefined) {
+        d[data.id] = {id_count : 1, num_ids : []}
+        all_ops[data.id] = []
+    } 
+    var clientId = `${data.id}-${d[data.id].id_count}`
+    console.log(`Client ${clientId} connected`)
+
+        
     res.writeHead(200, {
         'Connection': 'keep-alive',
         'Content-Type': 'text/event-stream',
@@ -13,35 +19,38 @@ api.get("/connect/:id", async(req, res) => {
         'Cache-Control': 'no-cache'
     });
     res.flushHeaders()
-    const intervalId = setInterval(() => {
-        if(newConnect) {
-            res.write(`id:${req.params.id}\ndata:${JSON.stringify(all_ops[req.params.id])}\nevent:sync`)
-            newConnect = false
-        } else {
-            if(d[req.params.id] != undefined && d[req.params.id].length > 0) {
-                var data = d[req.params.id].shift()
-                var str = JSON.stringify(data)
-                res.write(`id:${req.params.id}\ndata:${str}\nevent:update`)
-            }
-        }
-        res.write("\n\n")
-    }, 0)
+    res.write(`id:${data.id}\ndata:${JSON.stringify(all_ops[data.id])}\nevent:sync`)
+    res.write("\n\n")
+
+
+    d[data.id].num_ids.push(`${clientId}`)
+    d[data.id].id_count += 1
 
     res.on("close", () => {
-        console.log("Client disconnected from", req.params.id)
-        clearInterval(intervalId)
+        console.log(`Client ${clientId} disconnected from`, data.id)
+        d[data.id].num_ids = d[data.id].num_ids.filter(elem => elem != clientId)
         res.end()
     })
 })
 
+
+var d = {}
+var all_ops = {}
+
+api.get("/connect/:id", async(req, res) => {
+    em.emit("new_conn", req.params, res)
+    em.on(`update-${req.params.id}`, (data, updateValue) => {
+        res.write(`id:${data.id}\ndata:${JSON.stringify(updateValue)}\nevent:update`)
+        res.write("\n\n")
+    })
+})
+
 api.post("/op/:id", async (req, res) => {
-    const id = req.params.id
-    if(d[id] == undefined) {
-        d[id] = []
-        all_ops[id] = []
+    if(all_ops[req.params.id] == undefined) {
+        return res.status(200).json({})
     }
-    d[id].push(req.body)
-    all_ops[id].push(req.body)
+    all_ops[req.params.id].push(req.body)
+    em.emit(`update-${req.params.id}`, req.params, req.body) 
     res.status(200).json({})
 })
 

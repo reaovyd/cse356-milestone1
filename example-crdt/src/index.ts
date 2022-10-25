@@ -17,30 +17,26 @@ exports.CRDT = class {
         this.ydoc = new Y.Doc();
         this.ytext = this.ydoc.getText("text");
 
-        // ydoc.get
-        // ...
         ['update', 'insert', 'delete', 'toHTML'].forEach(f => (this as any)[f] = (this as any)[f].bind(this));
     }
     update(update: string) {
-        console.log(update)
-        this.cb("updated_string", false);
-    // ...
+        //console.log(update)
+        Y.applyUpdate(this.ydoc, JSON.parse(update));
+        this.ytext = this.ydoc.getText("text");
+        var html = this.toHTML()
+        this.cb(html, false);
     }
     insert(index: number, content: string, format: CRDTFormat) {
         this.ytext.insert(index, content, format);
         var html = this.toHTML()
-        if(html.startsWith("<p>") && html.endsWith("</p>")) {
-            html = html.slice(3, html.length - 4)
-        }
         this.cb(html, true);
-        // ...
     }
     delete(index: number, length: number) {
         this.ytext.delete(index, length)
         var html = this.toHTML()
-        if(html.startsWith("<p>") && html.endsWith("</p>")) {
-            html = html.slice(3, html.length - 4)
-        }
+        //if(html.startsWith("<p>") && html.endsWith("</p>")) {
+        //    html = html.slice(3, html.length - 4)
+        //}
         this.cb(html, true);
         // ...
     }
