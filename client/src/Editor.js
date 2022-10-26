@@ -1,45 +1,53 @@
-import React, {useState, useEffect, useRef, useCallback }from 'react'
-import Quill from 'quill';
-import { QuillBinding } from 'y-quill'
+import React, {useState, useCallback} from "react";
+import {useParams} from "react-router-dom";
+import Quill from "quill";
+import 'quill/dist/quill.snow.css'
+import axios from "axios";
 import * as Y from 'yjs'
-import { WebrtcProvider } from 'y-webrtc'
-import 'react-quill/dist/quill.snow.css';
-import QuillCursors from 'quill-cursors'
+import { QuillBinding } from 'y-quill'
 
-Quill.register('modules/cursors', QuillCursors)
-
-const Editor = (documentId) => {
-    // const ydoc = useRef(new Y.Doc())
-    // const [text, setText] = useState('')
-    // const [quill, setQuill] = useState(<></>)
-    // useEffect(() => {
-    //     setQuill(<ReactQuill theme = "snow" value={text} onChange={setText}/>)
-    //     const provider = new WebrtcProvider(`quill-room-${documentId}`, ydoc.current) 
-    //     const ytext = ydoc.current.getText('quill')
-    //     const binding = new QuillBinding(ytext, quill, provider.awareness)
-    // }, [])
-    //useEffect(() => {
-    //    const quill = new Quill(document.getElementById('#editor'), {
-    //      theme: 'snow' 
-    //    })
-    //}, [])
+const Editor = () => {
+    const { id } = useParams()
     const wrapperRef = useCallback(wrapper => {
-        if (wrapper == null) return
+        if(wrapper == null) return
+        const sse = new EventSource(`http://localhost:8080/api/connect/${id}`)
+
         wrapper.innerHTML = ""
         const editor = document.createElement("div")
         wrapper.append(editor)
-        const quill = new Quill(editor, {
-            theme : "snow",
-            modules:{
-                cursors: true,
+        const doc = new Y.Doc()
+        var type = doc.getText("quill")
+
+        const quill = new Quill(editor, {theme:'snow'})
+        const binding = new QuillBinding(type, quill)
+
+        sse.addEventListener("sync", (e) => {
+            console.log(`SYNCED`)
+            const lst = JSON.parse(e.data)
+            lst.forEach(elem => {
+                type.applyDelta(elem)
+            })
+        })
+
+        sse.addEventListener("update", (e) => {
+            const json = JSON.parse(e.data)
+            const lst = json.delta
+            const post_id = json.post_id
+            if(post_id !== doc.clientID) {
+                type.applyDelta(lst)
             }
         })
-        const ydoc = new Y.Doc()
-        const provider = new WebrtcProvider(`quill-room-${documentId}`, ydoc)
-        const ytext = ydoc.getText('quill')
-        const binding = new QuillBinding(ytext, quill, provider.awareness)
+
+        quill.on("text-change", (delta, oldContents, source) => {
+            if(source !== "user") {
+                return
+            }
+            axios.post(`http://localhost:8080/api/op/${id}`, {delta: delta.ops, post_id : doc.clientID}).then(res => {
+            }).catch(err => {
+            })
+        })
     }, [])
-    return( 
+    return (
         <div id="editor" ref={wrapperRef}>
         </div>
     )

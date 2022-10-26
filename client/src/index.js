@@ -1,12 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import {
+    HashRouter as Router,
+    Routes, Route
+} from 'react-router-dom'
+import Editor from './Editor';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <Router>
+    <Routes>
+       <Route path="/" element={<App />}/> 
+       <Route path="/:id" element={<Editor />}/> 
+    </Routes>
+  </Router>
 );
-

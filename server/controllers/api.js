@@ -1,6 +1,7 @@
 const api = require("express").Router()
 const EventEmitter = require("events").EventEmitter
 const em = new EventEmitter() 
+em.setMaxListeners(0)
 
 
 em.on("new_conn", (data, res) => {
@@ -39,8 +40,16 @@ var all_ops = {}
 
 api.get("/connect/:id", async(req, res) => {
     em.emit("new_conn", req.params, res)
-    em.on(`update-${req.params.id}`, (data, updateValue) => {
-        res.write(`id:${data.id}\ndata:${JSON.stringify(updateValue)}\nevent:update`)
+    em.on(`update-${req.params.id}`, (data, updateValue, post_id) => {
+        if(post_id === undefined) {
+            res.write(`id:${data.id}\ndata:${JSON.stringify(updateValue)}\nevent:update`)
+        } else {
+            ret = {
+                delta : updateValue,
+                post_id
+            }
+            res.write(`id:${data.id}\ndata:${JSON.stringify(ret)}\nevent:update`)
+        }
         res.write("\n\n")
     })
 })
@@ -49,8 +58,8 @@ api.post("/op/:id", async (req, res) => {
     if(all_ops[req.params.id] == undefined) {
         return res.status(200).json({})
     }
-    all_ops[req.params.id].push(req.body)
-    em.emit(`update-${req.params.id}`, req.params, req.body) 
+    all_ops[req.params.id].push(req.body.delta == undefined ? req.body : req.body.delta)
+    em.emit(`update-${req.params.id}`, req.params, req.body.delta == undefined ? req.body : req.body.delta, req.body.post_id) 
     res.status(200).json({})
 })
 
