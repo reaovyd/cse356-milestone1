@@ -53,7 +53,6 @@ api.post("/users/login", async(req, res) => {
         req.session.name = {name}
         res.json(req.session)
     }
-    res.send(document.cookie = `name = ${existingUser.name}`)
 
 })
 
@@ -111,6 +110,7 @@ api.get("/users/verify?any=parameters&you=need&key=KEY", async(req, res)=>{
 api.post("/collection/create", async(req, res) => {
     res_save[badIdImpl] = {id_count : 0, res_storage : [], name: req.body.name}
     badIdImpl ++
+    
     res.status(200).json({id: badIdImpl - 1})
 
 })
