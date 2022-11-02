@@ -36,7 +36,7 @@ api.get("/connect/:id", async(req, res) => {
     })
 })
 
-api.get("/op/:id", async(req, res) => {
+api.post("/op/:id", async(req, res) => {
     full_doc[req.params.id].push(req.body.data)
     const dataSend = {
         data : req.body.data,
