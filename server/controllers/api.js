@@ -1,65 +1,53 @@
 const api = require("express").Router()
 const EventEmitter = require("events").EventEmitter
-const em = new EventEmitter() 
-em.setMaxListeners(0)
+var res_save = {}
+var full_doc = {}
 
-
-em.on("new_conn", (data, res) => {
-    if(d[data.id] == undefined) {
-        d[data.id] = {id_count : 1, num_ids : []}
-        all_ops[data.id] = []
-    } 
-    var clientId = `${data.id}-${d[data.id].id_count}`
-    console.log(`Client ${clientId} connected`)
-
-        
+api.get("/connect/:id", async(req, res) => {
+    const id = req.params.id
+    if(res_save[id] == undefined) {
+        full_doc[id] = []
+        res_save[id] = {id_count : 1, res_storage : []}
+    }
     res.writeHead(200, {
         'Connection': 'keep-alive',
         'Content-Type': 'text/event-stream',
         'Access-Control-Allow-Origin' : '*',
         'Cache-Control': 'no-cache'
     });
+    const clientId = `${id}-${res_save[id].id_count++}` 
+
+    const dataSend = {
+        data : full_doc[id],
+        "event": "sync"  
+    }
+
     res.flushHeaders()
-    res.write(`id:${data.id}\ndata:${JSON.stringify(all_ops[data.id])}\nevent:sync`)
+    res.write(`id:${clientId}\ndata:${JSON.stringify(dataSend)}\nevent:sync`)
     res.write("\n\n")
 
+    res_save[id].res_storage.push([clientId, res])
 
-    d[data.id].num_ids.push(`${clientId}`)
-    d[data.id].id_count += 1
 
     res.on("close", () => {
-        console.log(`Client ${clientId} disconnected from`, data.id)
-        d[data.id].num_ids = d[data.id].num_ids.filter(elem => elem != clientId)
+        console.log(`Client ${clientId} disconnected from`, id)
+        res_save[id].res_storage = res_save[id].res_storage.filter(elem => elem[0] != clientId)
         res.end()
     })
 })
 
-
-var d = {}
-var all_ops = {}
-
-api.get("/connect/:id", async(req, res) => {
-    em.emit("new_conn", req.params, res)
-    em.on(`update-${req.params.id}`, (data, updateValue, post_id) => {
-        if(post_id === undefined) {
-            res.write(`id:${data.id}\ndata:${JSON.stringify(updateValue)}\nevent:update`)
-        } else {
-            ret = {
-                delta : updateValue,
-                post_id
-            }
-            res.write(`id:${data.id}\ndata:${JSON.stringify(ret)}\nevent:update`)
-        }
-        res.write("\n\n")
-    })
-})
-
-api.post("/op/:id", async (req, res) => {
-    if(all_ops[req.params.id] == undefined) {
-        return res.status(200).json({})
+api.get("/op/:id", async(req, res) => {
+    full_doc[req.params.id].push(req.body.data)
+    const dataSend = {
+        data : req.body.data,
+        "event" : "update"
     }
-    all_ops[req.params.id].push(req.body.delta == undefined ? req.body : req.body.delta)
-    em.emit(`update-${req.params.id}`, req.params, req.body.delta == undefined ? req.body : req.body.delta, req.body.post_id) 
+    res_save[req.params.id].res_storage.forEach((elem) => {
+        const resWrite = elem[1]
+        resWrite.write(`id:${elem[0]}\ndata:${JSON.stringify(dataSend)}\nevent:update`)
+        resWrite.write("\n\n")
+    })
+
     res.status(200).json({})
 })
 

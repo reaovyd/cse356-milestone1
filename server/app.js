@@ -17,13 +17,13 @@ app.get("/library/crdt.js", async(req, res) => {
     res.sendFile(__dirname + "/dist/crdt.js")
 })
 
-app.get("/", async(req, res) => {
-    res.sendFile(__dirname + "/index.html")
-})
-
-app.get("/check", async(req, res) => {
-    res.sendFile(__dirname + "/index1.html")
-})
+// app.get("/", async(req, res) => {
+//     res.sendFile(__dirname + "/index.html")
+// })
+// 
+// app.get("/check", async(req, res) => {
+//     res.sendFile(__dirname + "/index1.html")
+// })
 
 
 module.exports = app

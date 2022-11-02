@@ -16,29 +16,30 @@ exports.CRDT = class {
         this.cb = cb;
         this.ydoc = new Y.Doc();
         this.ytext = this.ydoc.getText("text");
-
         ['update', 'insert', 'delete', 'toHTML'].forEach(f => (this as any)[f] = (this as any)[f].bind(this));
+        this.ydoc.on("update", (update : Uint8Array, origin: any) => {
+            const toSend = {
+                data: update
+            }
+            const ret = JSON.stringify(toSend)
+            this.cb(ret, origin === null)
+        })
     }
     update(update: string) {
-        //console.log(update)
-        Y.applyUpdate(this.ydoc, JSON.parse(update));
-        this.ytext = this.ydoc.getText("text");
-        var html = this.toHTML()
-        this.cb(html, false);
+        const json = JSON.parse(update)
+        if(json.event == "sync") {
+            for(let update of json.data) {
+                Y.applyUpdate(this.ydoc, update, this.ydoc.clientID)
+            }
+        } else {
+            Y.applyUpdate(this.ydoc, json.data, this.ydoc.clientID)
+        }
     }
     insert(index: number, content: string, format: CRDTFormat) {
-        this.ytext.insert(index, content, format);
-        var html = this.toHTML()
-        this.cb(html, true);
+        this.ytext.insert(index, content, format)
     }
     delete(index: number, length: number) {
         this.ytext.delete(index, length)
-        var html = this.toHTML()
-        //if(html.startsWith("<p>") && html.endsWith("</p>")) {
-        //    html = html.slice(3, html.length - 4)
-        //}
-        this.cb(html, true);
-        // ...
     }
     toHTML() {
         let arr = this.ytext.toDelta()
