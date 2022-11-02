@@ -2,7 +2,8 @@ const express = require("express")
 const cors = require("cors")
 const app = express()
 const api = require("./controllers/api")
-
+const user = require("./controllers/users")
+const collection = require("./controllers/collection")
 app.use(cors())
 app.use(express.json())
 app.use(express.static("build"))
@@ -12,7 +13,8 @@ app.use((req, res, next) => {
     next()
 })
 app.use("/api", api)
-
+app.use("/users", user)
+app.use("/collection", collection)
 app.get("/library/crdt.js", async(req, res) => {
     res.sendFile(__dirname + "/dist/crdt.js")
 })

@@ -5,18 +5,18 @@ const api = express();
 const docDB = require('../schema/document')
 const userDB = require('../schema/user')
 const mediaDB = require('../schema/media')
-api.post("/collection/create", async(req, res) => {
+api.post("/create", async(req, res) => {
     res_save[badIdImpl] = {id_count : 0, res_storage : [], name: req.body.name}
     badIdImpl ++
     
     res.status(200).json({id: badIdImpl - 1})
 
 })
-api.post("/collcetion/delete", async(req, res) => {
+api.post("/delete", async(req, res) => {
     res_save[req.body.id] = undefined
     res.status(200).json({})
     
 })
-api.get("/collection/list", async(req, res) =>{
+api.get("/list", async(req, res) =>{
 
 })

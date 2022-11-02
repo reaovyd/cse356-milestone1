@@ -13,7 +13,7 @@ api.use(session({
     secret: 'secret',
     saveUninitialized: false,
 }))
-api.post("/users/login", async(req, res) => {   
+api.post("/login", async(req, res) => {   
     const { email, password } = req.body;
     if (!email || !password) {
         return res
@@ -53,11 +53,11 @@ api.post("/users/login", async(req, res) => {
 
 })
 
-api.post("/users/logout", async(req, res) => {
+api.post("/logout", async(req, res) => {
     req.session.destroy
     
 })
-api.post("/users/signup", async(req, res) =>{
+api.post("/signup", async(req, res) =>{
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
         return res
@@ -101,21 +101,6 @@ api.post("/users/signup", async(req, res) =>{
     })
 
 })
-api.get("/users/verify?any=parameters&you=need&key=KEY", async(req, res)=>{
-
-})
-api.post("/collection/create", async(req, res) => {
-    res_save[badIdImpl] = {id_count : 0, res_storage : [], name: req.body.name}
-    badIdImpl ++
-    
-    res.status(200).json({id: badIdImpl - 1})
-
-})
-api.post("/collcetion/delete", async(req, res) => {
-    res_save[req.body.id] = undefined
-    res.status(200).json({})
-    
-})
-api.get("/collection/list", async(req, res) =>{
+api.get("/verify", async(req, res)=>{
 
 })
