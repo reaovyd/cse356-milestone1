@@ -12,7 +12,6 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    //For now snapshot field would only be snapshot of googledrive
     document:[{type: mongoose.Schema.Types.ObjectId, ref: 'document'}]
 
 
