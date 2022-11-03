@@ -12,12 +12,8 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    googleAcc:{
-        type:String
-    },
     //For now snapshot field would only be snapshot of googledrive
-    document:[{type: Number}],
-    media:[{type: mongoose.Schema.Types.ObjectId, ref: 'media'}]
+    document:[{type: mongoose.Schema.Types.ObjectId, ref: 'document'}]
 
 
 })
