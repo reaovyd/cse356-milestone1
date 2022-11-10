@@ -64,6 +64,8 @@ api.get("/connect/:id", async(req, res) => {
             console.log(`Client ${email} disconnected from`, resRoomId)
             rdd.user_response_lst[email] = rdd.user_response_lst[email].filter(resObj => resObj != res) 
             rdd.response_dct_lst[resRoomId] = rdd.response_dct_lst[resRoomId].filter(elem => elem.email != email && elem.response != res) 
+            console.log(rdd.user_response_lst)
+            console.log(rdd.response_dct_lst)
             //rdd.response_dct_lst[resRoomId].forEach(elem => {
             //    const resWrite = elem.response
             //})

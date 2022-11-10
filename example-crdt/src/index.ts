@@ -31,7 +31,7 @@ exports.CRDT = class {
             for(let update of json.data) {
                 Y.applyUpdate(this.ydoc, update, this.ydoc.clientID)
             }
-        } else {
+        } else if(json.event == "update") {
             Y.applyUpdate(this.ydoc, json.data, this.ydoc.clientID)
         }
     }
@@ -40,6 +40,13 @@ exports.CRDT = class {
     }
     delete(index: number, length: number) {
         this.ytext.delete(index, length)
+    }
+    insertImage(index: number, url: string) {
+        this.ytext.applyDelta([{retain: index}, {
+            insert : {
+                image : url
+            }
+        }])
     }
     toHTML() {
         let arr = this.ytext.toDelta()

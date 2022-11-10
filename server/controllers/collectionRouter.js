@@ -14,7 +14,7 @@ api.post("/create", async(req, res) => {
     const savedDoc = await newDoc.save()
 
 
-    return res.status(400).json({
+    return res.json({
         "id": savedDoc._id
     })
 })
@@ -35,8 +35,7 @@ api.post("/delete", async(req, res) => {
             })
         }
 
-        return res.status(400).json({
-            "id": savedDoc._id
+        return res.json({
         })
     } catch(e) {
         return res.status(400).json({
