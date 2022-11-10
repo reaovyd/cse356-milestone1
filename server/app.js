@@ -10,6 +10,7 @@ const cookieSession = require("cookie-session")
 const Keygrip = require("keygrip")
 const collectionRouter = require("./controllers/collectionRouter")
 const middleware = require("./middlewareUtil")
+const mediaRouter = require("./controllers/mediaRouter")
 
 mongoose.connect("mongodb://127.0.0.1:27017/cse356").then(res => {
     console.log("Successfully connected to Mongo instance")
