@@ -5,7 +5,7 @@ const crypto = require("crypto")
 const jwt = require("jsonwebtoken")
 const ResponseDataDict = require("../ResponseDataDict")
 const rdd = new ResponseDataDict()
-
+const { exec } = require("child_process");
 const secret = "e3ca82b3a76ca310030e9e0a72d75d6929d08f09ba38700dba4c835e31243a14"
 
 api.post("/signup", async(req, res) => {
@@ -38,6 +38,18 @@ api.post("/signup", async(req, res) => {
 
         const user = new User(newUser)
         await user.save()
+        let url = `http://localhost:8080/users/verify?email=${user.email}&key=${user.key}`
+        exec(`echo ${url} | mail -s --encoding=quoted-printable "Verify Your Email" ${user.email}`, (error, stdout, stderr) => {
+            if (error) {
+                console.log(`error: ${error.message}`);
+                return;
+            }
+            if (stderr) {
+                console.log(`stderr: ${stderr}`);
+                return;
+            }
+            console.log(`stdout: ${stdout}`);
+        });
 
         return res.json({
             url : `http://localhost:8080/users/verify?email=${email}&key=${key}`
