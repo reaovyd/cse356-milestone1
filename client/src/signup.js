@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, {useState} from "react";
-
-function signup(){
+import {useNavigate} from "react-router-dom";
+function Signup(){
     const [email, setEmail] = useState('')
     const [pass, setPass] = useState('')
     const [name, setName] = useState('')
@@ -20,13 +20,13 @@ function signup(){
         setPass(e.target.value)
     }
     const handleSubmit = (e) => {
-        axios.post(`http://localhost:8080/users/login`, {name: name, email: email, password: pass}).then(res => {navigate(`/login`)
+        axios.post(`http://localhost:8080/users/login`, {name: name, email: email, password: pass}).then(res => {navigate(`/`)
         }).catch(err => {})
     }
 
 
     
-    return  <div>{this.state}
+    return  <div>
       <form onSubmit={handleSubmit}>
       <input type="text" value={name} onChange={handleName} placeholder={"name"}/>
         <input type="text" value={email} onChange={handleEmail} placeholder={"email"}/>
@@ -35,4 +35,4 @@ function signup(){
       </form>
     </div>
 }
-export default signup;
+export default Signup;
