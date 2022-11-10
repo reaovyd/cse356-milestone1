@@ -5,7 +5,7 @@ const api = express();
 const EventEmitter = require("events").EventEmitter
 export var res_save = {}
 var full_doc = {}
-
+export let recentEdit = []
 api.get("/connect/:id", async(req, res) => {
     const id = req.params.id
     if(res_save[id] == undefined) {
@@ -50,6 +50,19 @@ api.post("/op/:id", async(req, res) => {
         resWrite.write(`id:${elem[0]}\ndata:${JSON.stringify(dataSend)}\nevent:update`)
         resWrite.write("\n\n")
     })
+    let id = req.params.id
+    let name = res_save[req.params.id].name
+    //update recent 10
+    //filter out if the element already in the top 10
+    recentEdit = recentEdit.filter(function(element) {
+        return element.id != id
+    })
+    //add it to the top
+    recentEdit.unshift({id, name})
+    if (recentEdit.length > 10){
+        //pop oldest
+        recentEdit.pop()
+    }
 
     res.status(200).json({})
 })

@@ -30,16 +30,6 @@ api.post("/signup", async(req, res) => {
 
     try {
 
-        // const email = encodeURIComponent(req.body.email)
-        // const key = crypto.createHash("md5").update(req.body.username + " " + req.body.email).digest("hex")
-
-        // newUser.key = key
-        // const user = new User(newUser)
-        // await user.save()
-
-        // const url = `http://209.94.58.160:8080/verify?email=${email}&key=${key}`
-        //
-
         const email = newUser.email
         const key = crypto.createHash("md5").update(newUser.email).digest("hex") 
         newUser.key = key

@@ -12,7 +12,10 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    document:[{type: mongoose.Schema.Types.ObjectId, ref: 'document'}]
+    document:[{type: mongoose.Schema.Types.ObjectId, ref: 'document'}],
+    key:{
+        type:String
+    }
 
 
 })
