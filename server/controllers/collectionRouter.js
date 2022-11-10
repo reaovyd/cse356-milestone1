@@ -1,7 +1,5 @@
 const api = require("express").Router()
 const Document = require("../models/Document") 
-const DequeSingleton = require("../DequeSingleton")
-const deque = new DequeSingleton()
 
 api.post("/create", async(req, res) => {
     if(req.body.name == null || req.body.name == undefined) {
@@ -14,6 +12,7 @@ api.post("/create", async(req, res) => {
         name : req.body.name
     })
     const savedDoc = await newDoc.save()
+
 
     return res.status(400).json({
         "id": savedDoc._id
@@ -48,7 +47,9 @@ api.post("/delete", async(req, res) => {
 })
 
 api.get("/list", async(req, res) => {
-    return res.json(deque.getElements())
+    const topTen = await Document.find({}).sort({date :-1}).limit(10)
+    return res.json(topTen)
+    // return res.json(ds.getElements())
 })
 
 module.exports = api

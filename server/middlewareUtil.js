@@ -16,6 +16,8 @@ const tokenMiddleware = async(req, res, next) => {
         const email = jwt.verify(req.session.token, secret)
         req.metadata = {}
         req.metadata.email = email
+        const findUser = await User.findOne({email: email})
+        req.metadata.name = findUser.name 
         next()
     } catch(e) {
         return res.status(400).json({
