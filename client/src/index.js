@@ -4,7 +4,7 @@ import {
     BrowserRouter as Router,
     Routes, Route
 } from 'react-router-dom'
-//import Editor from './Editor';
+import Editor from './Editor';
 //import App from './App';
 
 import Login from './Login.js'
@@ -17,6 +17,7 @@ root.render(
     <Routes>
        <Route path="/" element={<Login />}/> 
        <Route path="/home" element={<Home />}/> 
+       <Route path="/edit/:id" element={<Editor />}/> 
     </Routes>
   </Router>
 );
