@@ -14,7 +14,6 @@ api.post("/create", async(req, res) => {
         name : req.body.name
     })
     const savedDoc = await newDoc.save()
-    
 
     return res.status(400).json({
         "id": savedDoc._id
