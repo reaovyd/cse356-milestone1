@@ -2,8 +2,6 @@ const express = require("express")
 const cors = require("cors")
 const app = express()
 const api = require("./controllers/api")
-const user = require("./controllers/users")
-const collection = require("./controllers/collection")
 const userRouter = require("./controllers/userRouter")
 const mongoose = require("mongoose")
 const cookieSession = require("cookie-session")
@@ -45,6 +43,8 @@ app.use("/users", userRouter)
 
 app.use(middleware.tokenMiddleware)
 app.use("/api", api)
+app.use("/collection", collectionRouter)
+app.use("/media", mediaRouter)
 
 app.get("/library/crdt.js", async(req, res) => {
     res.sendFile(__dirname + "/dist/crdt.js")
