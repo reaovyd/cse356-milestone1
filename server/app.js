@@ -8,6 +8,7 @@ const cookieSession = require("cookie-session")
 const Keygrip = require("keygrip")
 const collectionRouter = require("./controllers/collectionRouter")
 const middleware = require("./middlewareUtil")
+const mediaRouter = require("./controllers/mediaRouter")
 
 mongoose.connect("mongodb://127.0.0.1:27017/cse356").then(res => {
     console.log("Successfully connected to Mongo instance")
@@ -34,6 +35,7 @@ app.use("/users", userRouter)
 app.use(middleware.tokenMiddleware)
 app.use("/api", api)
 app.use("/collection", collectionRouter)
+app.use("/media", mediaRouter)
 
 app.get("/library/crdt.js", async(req, res) => {
     res.sendFile(__dirname + "/dist/crdt.js")
