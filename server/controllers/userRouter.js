@@ -18,7 +18,7 @@ api.post("/signup", async(req, res) => {
     // TODO The /users/signup request must send an email to the user's email address which instructs the user to access a verification URL.
     const findUser = await User.findOne({"email" : req.body.email}) 
     if(findUser != null && findUser != undefined) {
-        return res.json({
+        return res.status(400).json({
             "error" : true,
             "message" : "user has already signed up"
         })
@@ -90,14 +90,14 @@ api.get("/verify", async(req, res) => {
 
 api.post("/login", async(req, res) => {
     if(!req.body.email || !req.body.password) {
-        return res.json({
+        return res.status(400).json({
             error: true,
             "message" : "missing one or more payload elements"
         })
     }
     const findUser = await User.findOne({email : req.body.email})
     if(findUser == null || findUser == undefined) {
-        return res.json({
+        return res.status(400).json({
             error: true,
             "message" : "user does not exist"
         })
@@ -106,14 +106,14 @@ api.post("/login", async(req, res) => {
     const isEqualPasswords = await bcrypt.compare(req.body.password, findUser.password)
 
     if(!isEqualPasswords || !findUser.activated) {
-        return res.json({
+        return res.status(400).json({
             error: true,
             "message" : "user has not activated or invalid pass"
         })
     }
 
     if(req.session.token != null || req.session.token != undefined) {
-        return res.json({
+        return res.status(400).json({
             error: true,
             "message" : "user is already logged in"
         })
@@ -129,9 +129,8 @@ api.post("/login", async(req, res) => {
 
 api.post("/logout", async(req, res) => {
     // TODO terminate ALL event streams for req.session.token
-
     if(req.session.token == undefined || req.session.token == null) {
-        return res.json({
+        return res.status(400).json({
             error: true,
             "message" : "user is not logged in"
         })
@@ -144,6 +143,7 @@ api.post("/logout", async(req, res) => {
         })
     }
     req.session = null
+    // res.clearCookie("session")
 
 
     return res.json({
