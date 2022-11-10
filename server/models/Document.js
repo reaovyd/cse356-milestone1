@@ -4,7 +4,11 @@ const documentSchema = new mongoose.Schema({
     name : {
         type: String
     },
-    data :[[Number]]
+    data :[[Number]],
+    date : {
+        type: Date,
+        default: () => new Date()
+    }
 })
 
 module.exports = mongoose.model("documents", documentSchema)

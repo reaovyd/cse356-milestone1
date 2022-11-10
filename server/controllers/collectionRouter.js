@@ -1,10 +1,8 @@
 const api = require("express").Router()
 const Document = require("../models/Document") 
-const DequeSingleton = require("../DequeSingleton")
-const deque = new DequeSingleton()
 
 api.post("/create", async(req, res) => {
-    if(req.body.name == null || req.body.name == undefined) {
+    if(req.body.name == null || req.body.name == undefined || req.body.name.length == 0) {
         return res.status(400).json({
             "error" : true,
             "message" : "missing document name"
@@ -15,7 +13,8 @@ api.post("/create", async(req, res) => {
     })
     const savedDoc = await newDoc.save()
 
-    return res.status(400).json({
+
+    return res.json({
         "id": savedDoc._id
     })
 })
@@ -36,8 +35,7 @@ api.post("/delete", async(req, res) => {
             })
         }
 
-        return res.status(400).json({
-            "id": savedDoc._id
+        return res.json({
         })
     } catch(e) {
         return res.status(400).json({
@@ -48,7 +46,15 @@ api.post("/delete", async(req, res) => {
 })
 
 api.get("/list", async(req, res) => {
-    return res.json(deque.getElements())
+    const topTen = await Document.find({}).sort({date :-1}).limit(10)
+    return res.json(topTen.map(elem => {
+        const newRet = {
+            id: elem._id,
+            name : elem.name
+        }
+        return newRet
+    }))
+    // return res.json(ds.getElements())
 })
 
 module.exports = api

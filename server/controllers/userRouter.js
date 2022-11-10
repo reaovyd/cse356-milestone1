@@ -3,6 +3,8 @@ const User = require("../models/User")
 const bcrypt = require("bcrypt")
 const crypto = require("crypto")
 const jwt = require("jsonwebtoken")
+const ResponseDataDict = require("../ResponseDataDict")
+const rdd = new ResponseDataDict()
 
 const secret = "e3ca82b3a76ca310030e9e0a72d75d6929d08f09ba38700dba4c835e31243a14"
 
@@ -16,7 +18,7 @@ api.post("/signup", async(req, res) => {
     // TODO The /users/signup request must send an email to the user's email address which instructs the user to access a verification URL.
     const findUser = await User.findOne({"email" : req.body.email}) 
     if(findUser != null && findUser != undefined) {
-        return res.json({
+        return res.status(400).json({
             "error" : true,
             "message" : "user has already signed up"
         })
@@ -59,7 +61,6 @@ api.get("/verify", async(req, res) => {
     }
 
     const findUser = await User.findOne({"email" : req.query.email})
-    console.log(findUser)
     if(findUser == undefined || findUser == null) {
         return res.status(400).json({
             "error" : true,
@@ -90,14 +91,14 @@ api.get("/verify", async(req, res) => {
 
 api.post("/login", async(req, res) => {
     if(!req.body.email || !req.body.password) {
-        return res.json({
+        return res.status(400).json({
             error: true,
             "message" : "missing one or more payload elements"
         })
     }
     const findUser = await User.findOne({email : req.body.email})
     if(findUser == null || findUser == undefined) {
-        return res.json({
+        return res.status(400).json({
             error: true,
             "message" : "user does not exist"
         })
@@ -106,14 +107,14 @@ api.post("/login", async(req, res) => {
     const isEqualPasswords = await bcrypt.compare(req.body.password, findUser.password)
 
     if(!isEqualPasswords || !findUser.activated) {
-        return res.json({
+        return res.status(400).json({
             error: true,
             "message" : "user has not activated or invalid pass"
         })
     }
 
     if(req.session.token != null || req.session.token != undefined) {
-        return res.json({
+        return res.status(400).json({
             error: true,
             "message" : "user is already logged in"
         })
@@ -130,16 +131,23 @@ api.post("/login", async(req, res) => {
 api.post("/logout", async(req, res) => {
     // TODO terminate ALL event streams for req.session.token
     if(req.session.token == undefined || req.session.token == null) {
-        return res.json({
+        return res.status(400).json({
             error: true,
             "message" : "user is not logged in"
         })
     }
+    const email = jwt.verify(req.session.token, secret)
+    if(rdd.user_response_lst[email] != undefined && rdd.user_response_lst[email] != null) {
+        const userResponseList = [...rdd.user_response_lst[email]]
+        userResponseList.forEach(response => {
+            response.connection.end()
+        })
+    }
     req.session = null
+    // res.clearCookie("session")
+
 
     return res.json({
-        "status" : "OK",
-        "message" : "user has successfuly logged out"
     })
 })
 
