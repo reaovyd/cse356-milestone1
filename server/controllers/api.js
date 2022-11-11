@@ -46,15 +46,15 @@ api.get("/connect/:id", async(req, res) => {
         res.write("\n\n")
         console.log(rdd.response_dct_lst)
 
-        const cursorDataSend = {
-            session_id : req.session.token,
-            name : req.metadata.name,
-            cursor : rdd.presence_cursor[req.params.id]
-        }
+        //const cursorDataSend = {
+        //    session_id : req.session.token,
+        //    name : req.metadata.name,
+        //    cursor : rdd.presence_cursor[req.params.id]
+        //}
 
         rdd.response_dct_lst[resRoomId].forEach(elem => {
             const resWrite = elem.response
-            resWrite.write(`data:${JSON.stringify(cursorDataSend)}\nevent:presence`)
+            resWrite.write(`data:${JSON.stringify(rdd.presence_cursor[req.params.id])}\nevent:presence`)
             resWrite.write("\n\n")
         })
 
@@ -62,8 +62,24 @@ api.get("/connect/:id", async(req, res) => {
 
         res.on("close", () => {
             console.log(`Client ${email} disconnected from`, resRoomId)
+
+
+            rdd.response_dct_lst[resRoomId].forEach((elem) => {
+                const resWrite = elem.response
+                const toSend = {
+                    session_id : req.metadata.email,
+                    name: req.metadata.name,
+                    cursor: {}
+                }
+                resWrite.write(`data:${JSON.stringify(toSend)}\nevent:presence`)
+                resWrite.write("\n\n")
+            })
+
             rdd.user_response_lst[email] = rdd.user_response_lst[email].filter(resObj => resObj !== res) 
             rdd.response_dct_lst[resRoomId] = rdd.response_dct_lst[resRoomId].filter(elem => elem.email != email && elem.response !== res) 
+
+
+
             //rdd.response_dct_lst[resRoomId].forEach(elem => {
             //    const resWrite = elem.response
             //})
@@ -125,14 +141,14 @@ api.post("/op/:id", async(req, res) => {
 })
 
 api.post("/presence/:id", async(req, res) => {
-    if(req.body.cursor == undefined || req.body.session_id == undefined || req.body.name == undefined) {
-        return res.json({
-            error: true,
-            "message": "payload is missing one or more arguments"
-        })
-    }
-    const idx = req.body.cursor.index
-    const length = req.body.cursor.length
+    //if(req.body.cursor == undefined || req.body.session_id == undefined || req.body.name == undefined) {
+    //    return res.json({
+    //        error: true,
+    //        "message": "payload is missing one or more arguments"
+    //    })
+    //}
+    const idx = req.body.index
+    const length = req.body.length
     // console.log(rdd.presence_cursor[req.params.id])
     if(idx == null || idx == undefined || length == undefined || length == null) {
         return res.json({
@@ -145,7 +161,7 @@ api.post("/presence/:id", async(req, res) => {
         name : req.metadata.name,
         cursor : {index : idx, length : length}
     }
-    rdd.presence_cursor[req.params.id] = dataSend.cursor
+    rdd.presence_cursor[req.params.id] = dataSend
     rdd.response_dct_lst[req.params.id].forEach((elem) => {
         const resWrite = elem.response
         resWrite.write(`data:${JSON.stringify(dataSend)}\nevent:presence`)

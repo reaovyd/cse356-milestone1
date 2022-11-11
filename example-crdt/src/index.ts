@@ -15,11 +15,11 @@ exports.CRDT = class {
     constructor(cb: (update: string, isLocal: Boolean) => void) {
         this.cb = cb;
         this.ydoc = new Y.Doc();
-        this.ytext = this.ydoc.getText("text");
+        this.ytext = this.ydoc.getText("quill");
         ['update', 'insert', 'delete', 'toHTML'].forEach(f => (this as any)[f] = (this as any)[f].bind(this));
         this.ydoc.on("update", (update : Uint8Array, origin: any) => {
             const toSend = {
-                data: update
+                data: Array.from(update)
             }
             const ret = JSON.stringify(toSend)
             this.cb(ret, origin === null)

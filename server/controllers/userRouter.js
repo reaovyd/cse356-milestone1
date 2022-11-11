@@ -1,8 +1,8 @@
 const api = require("express").Router()
+//const { exec } = require("child_process")
 const User = require("../models/User")
 const bcrypt = require("bcrypt")
 const crypto = require("crypto")
-const jwt = require("jsonwebtoken")
 const ResponseDataDict = require("../ResponseDataDict")
 const rdd = new ResponseDataDict()
 
@@ -30,6 +30,8 @@ api.post("/signup", async(req, res) => {
         "password" : passwordHash 
     } 
 
+    
+
     try {
         const email = newUser.email
         const key = crypto.createHash("md5").update(newUser.email).digest("hex") 
@@ -37,6 +39,23 @@ api.post("/signup", async(req, res) => {
 
         const user = new User(newUser)
         await user.save()
+
+        /*
+         
+        const url = `http://209.94.58.217/users/verify?email=${encodeURIComponent(email)}&key=${key}`
+        console.log(`echo \"${url}\" | mail -s \"Verify\" --encoding=quoted-printable ${email}`)
+        
+        exec(`echo \"${url}\" | mail -s \"Verify\" --encoding=quoted-printable ${email}`, function(err, stdout, stderr) {
+                if(err) {
+                        return;
+                }
+                console.log(stderr)
+        })
+
+
+
+        */
+
 
         return res.json({
             url : `http://localhost:8080/users/verify?email=${email}&key=${key}`
@@ -119,8 +138,9 @@ api.post("/login", async(req, res) => {
         })
     }
 
-    const token = jwt.sign(findUser.email, secret)
-    req.session.token = token
+    // const token = jwt.sign(findUser.email, secret)
+    req.session.token = findUser.email
+    // console.log(req.session)
     return res.json({
         "name": findUser.name
     })
@@ -135,14 +155,14 @@ api.post("/logout", async(req, res) => {
             "message" : "user is not logged in"
         })
     }
-    const email = jwt.verify(req.session.token, secret)
+    const email = req.session.token 
     if(rdd.user_response_lst[email] != undefined && rdd.user_response_lst[email] != null) {
         const userResponseList = [...rdd.user_response_lst[email]]
         userResponseList.forEach(response => {
             response.connection.end()
         })
     }
-    req.session = null
+    req.session.destroy()
     // res.clearCookie("session")
 
 

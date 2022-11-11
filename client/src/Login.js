@@ -65,11 +65,14 @@ const LoginPage = () => {
         // console.log(email)
         // console.log(passwordText)
         Crud.loginPost(email, passwordText).then(res => {
+            console.log(res.data)
             if(res.data.error == true) {
                 throw new Error(res.data.message)
+            } else {
+                window.localStorage.setItem("name", res.data.name) 
+                window.localStorage.setItem("sessionId", email) 
+                navigate("/home")
             }
-            window.localStorage.setItem("name", res.data.name) 
-            navigate("/home")
         }).catch(err => {
             console.error(err)
         })
