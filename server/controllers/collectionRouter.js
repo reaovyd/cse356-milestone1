@@ -3,7 +3,7 @@ const Document = require("../models/Document")
 
 api.post("/create", async(req, res) => {
     if(req.body.name == null || req.body.name == undefined || req.body.name.length == 0) {
-        return res.status(400).json({
+        return res.json({
             "error" : true,
             "message" : "missing document name"
         })
@@ -21,7 +21,7 @@ api.post("/create", async(req, res) => {
 
 api.post("/delete", async(req, res) => {
     if(req.body.id == null || req.body.id == undefined) {
-        return res.status(400).json({
+        return res.json({
             "error" : true,
             "message" : "missing document id"
         })
@@ -29,7 +29,7 @@ api.post("/delete", async(req, res) => {
     try {
         const savedDoc = await Document.findByIdAndDelete(req.body.id) 
         if(savedDoc == null || savedDoc == undefined) {
-            return res.status(400).json({
+            return res.json({
                 "error" : true,
                 "message" : "unknown document"
             })
@@ -38,7 +38,7 @@ api.post("/delete", async(req, res) => {
         return res.json({
         })
     } catch(e) {
-        return res.status(400).json({
+        return res.json({
             "error" : true,
             "message" : "invalid document id"
         })

@@ -85,14 +85,14 @@ api.post("/op/:id", async(req, res) => {
     try{
         const getDoc = await Document.findById(req.params.id) 
         if(getDoc == null || getDoc == undefined) {
-            return res.status(400).json({
+            return res.json({
                 "error" : true,
                 "message" : "document does not exist"
             })
         }
         const data = req.body.data
         if(data == undefined || data == null) {
-            return res.status(400).json({
+            return res.json({
                 "error" : true,
                 "message" : "no data found"
             })
@@ -117,7 +117,7 @@ api.post("/op/:id", async(req, res) => {
 
         return res.json({})
     }catch(e) {
-        return res.status(400).json({
+        return res.json({
             "error" : true,
             "message": "invalid doc"
         })
@@ -126,7 +126,7 @@ api.post("/op/:id", async(req, res) => {
 
 api.post("/presence/:id", async(req, res) => {
     if(req.body.cursor == undefined || req.body.session_id == undefined || req.body.name == undefined) {
-        return res.status(400).json({
+        return res.json({
             error: true,
             "message": "payload is missing one or more arguments"
         })
@@ -135,7 +135,7 @@ api.post("/presence/:id", async(req, res) => {
     const length = req.body.cursor.length
     // console.log(rdd.presence_cursor[req.params.id])
     if(idx == null || idx == undefined || length == undefined || length == null) {
-        return res.status(400).json({
+        return res.json({
             error: true,
             "message": "payload is missing one or more arguments"
         })

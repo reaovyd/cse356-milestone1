@@ -27,7 +27,7 @@ const upload = multer({
 
 api.post("/upload", upload.single("file"), async(req, res) => {
     if(req.file === undefined || req.file === null) {
-        return res.status(400).json({
+        return res.json({
             error : true,
             message : "no file was found to be uploaded"
         })
@@ -42,7 +42,7 @@ api.get("/access/:mediaid", async(req, res) => {
     if(fs.existsSync(fileName)) {
         return res.sendFile(fileName)
     } else {
-        return res.status(400).json({
+        return res.json({
             error: true,
             message: "file does not exist"
         })

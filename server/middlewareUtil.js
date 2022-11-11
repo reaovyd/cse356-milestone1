@@ -11,7 +11,7 @@ const tokenMiddleware = async(req, res, next) => {
     // if req.originalUrl == /login 
     // don't do below
     if(req.session.token == null || req.session.token == undefined) {
-        return res.status(400).json({
+        return res.json({
             "error" : true,
             "message" : "user must be logged in"
         })
@@ -24,7 +24,7 @@ const tokenMiddleware = async(req, res, next) => {
         req.metadata.name = findUser.name 
         next()
     } catch(e) {
-        return res.status(400).json({
+        return res.json({
             "error" : true,
             "message" : "invalid token"
         })

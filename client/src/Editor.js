@@ -39,6 +39,9 @@ const Editor = () => {
              } else if(doc.clientID === origin.doc.clientID) {
                  const data = Array.from(update)
                  axios.post(`${baseUrl}/api/op/${id}`, {data: data}, {withCredentials: true}).then(res => {
+                     if(res.data.error == true) {
+                         throw new Error(res.data.message)
+                     }
                  }).catch(err => {
                  })
              }
@@ -59,25 +62,25 @@ const Editor = () => {
          const binding = new QuillBinding(type, quill)
 
 
-         cursors.createCursor(sessionId, name, "blue")
-         cursors.toggleFlag(sessionId, true)
+         //cursors.createCursor(sessionId, name, "blue")
+         //cursors.toggleFlag(sessionId, true)
 
-         quill.on("selection-change", function(range, oldRange, source) {
-             if(range) {
-                 cursors.moveCursor(sessionId, range) 
-                 axios.post(`${baseUrl}/api/presence/${id}`,{
-                     session_id : sessionId, 
-                     name, 
-                     cursor:{
-                         index:range.index, 
-                         length: range.length
-                     }
-                 }, {withCredentials:true}).then(res => {
-                 }).catch(err => {
-                     console.error(err)
-                 })
-             }
-         })
+         //quill.on("selection-change", function(range, oldRange, source) {
+         //    if(range) {
+         //        cursors.moveCursor(sessionId, range) 
+         //        axios.post(`${baseUrl}/api/presence/${id}`,{
+         //            session_id : sessionId, 
+         //            name, 
+         //            cursor:{
+         //                index:range.index, 
+         //                length: range.length
+         //            }
+         //        }, {withCredentials:true}).then(res => {
+         //        }).catch(err => {
+         //            console.error(err)
+         //        })
+         //    }
+         //})
 
  
          sse.addEventListener("sync", (e) => {
@@ -90,15 +93,17 @@ const Editor = () => {
              Y.applyUpdate(doc, new Uint8Array(JSON.parse(e.data).data), null) 
          })
 
-         sse.addEventListener("presence", (e) => {
-             const json = JSON.parse(e.data)
-             if(json.session_id !== sessionId) {
-                 cursors.createCursor(json.session_id, json.name, "blue")
-                 cursors.toggleFlag(json.session_id, true)
-                 cursors.moveCursor(json.session_id, json.cursor)
-             }
-             //console.log(json)
-         })
+         //sse.addEventListener("presence", (e) => {
+         //    const json = JSON.parse(e.data)
+         //    console.log(json.session_id)
+         //    console.log(sessionId)
+         //    if(json.session_id !== sessionId) {
+         //        cursors.createCursor(json.session_id, json.name, "blue")
+         //        cursors.toggleFlag(json.session_id, true)
+         //        cursors.moveCursor(json.session_id, json.cursor)
+         //    }
+         //    //console.log(json)
+         //})
     }, [])
     return (
         <div id="editor" ref={wrapperRef}>

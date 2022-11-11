@@ -11,6 +11,9 @@ const SignupPage = () => {
     const handleSubmit = (e) => {
         e.preventDefault()
         Crud.signupPost(nameText, passwordText, emailText).then(res => {
+            if(res.data.error == true) {
+                throw new Error(res.data.message)
+            }
             console.log(res)
         }).catch(err => {
             console.error(err)
@@ -62,6 +65,9 @@ const LoginPage = () => {
         // console.log(email)
         // console.log(passwordText)
         Crud.loginPost(email, passwordText).then(res => {
+            if(res.data.error == true) {
+                throw new Error(res.data.message)
+            }
             window.localStorage.setItem("name", res.data.name) 
             navigate("/home")
         }).catch(err => {

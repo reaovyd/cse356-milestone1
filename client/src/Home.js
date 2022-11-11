@@ -7,7 +7,13 @@ const ListLink = ({id, setDisplay}) => {
     const deleteHandler = (e) => {
         e.preventDefault()
         Crud.deleteDocument(id).then(res => {
+            if(res.data.error == true) {
+                throw new Error(res.data.message)
+            }
             Crud.getTopTenDocuments().then(res => {
+                if(res.data.error == true) {
+                    throw new Error(res.data.message)
+                }
                 setDisplay(res.data.map((elem, i)=> {
                     return (
                         <div className={"class-documents"} key={i}> 
@@ -36,6 +42,9 @@ const Home = () => {
 
     useEffect(() => {
         Crud.getTopTenDocuments().then(res => {
+            if(res.data.error == true) {
+                throw new Error(res.data.message)
+            }
             setDisplay(res.data.map((elem, i)=> {
                 return (
                     <div className={"class-documents"} key={i}> 
@@ -52,6 +61,9 @@ const Home = () => {
     const logoutHandler = (e) => {
         e.preventDefault()
         Crud.logoutPost().then(res => {
+            if(res.data.error == true) {
+                throw new Error(res.data.message)
+            }
             window.localStorage.removeItem("name")
             navigate("/")
         }).catch(err => {
@@ -61,7 +73,13 @@ const Home = () => {
     const formHandler = (e) =>{
         e.preventDefault()
         Crud.createDocument(documentName).then(res => {
+            if(res.data.error == true) {
+                throw new Error(res.data.message)
+            }
             Crud.getTopTenDocuments().then(res => {
+                if(res.data.error == true) {
+                    throw new Error(res.data.message)
+                }
                 setDisplay(res.data.map((elem, i)=> {
                     return (
                         <div className={"class-documents"} key={i}> 
