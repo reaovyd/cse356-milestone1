@@ -33,7 +33,6 @@ api.get("/connect/:id", async(req, res) => {
         res.writeHead(200, {
             'Connection': 'keep-alive',
             'Content-Type': 'text/event-stream',
-            'Access-Control-Allow-Origin' : '*',
             'Cache-Control': 'no-cache'
         });
 
@@ -45,6 +44,7 @@ api.get("/connect/:id", async(req, res) => {
         res.flushHeaders()
         res.write(`data:${JSON.stringify(dataSend)}\nevent:sync`)
         res.write("\n\n")
+        console.log(rdd.response_dct_lst)
 
         const cursorDataSend = {
             session_id : req.session.token,
@@ -62,10 +62,8 @@ api.get("/connect/:id", async(req, res) => {
 
         res.on("close", () => {
             console.log(`Client ${email} disconnected from`, resRoomId)
-            rdd.user_response_lst[email] = rdd.user_response_lst[email].filter(resObj => resObj != res) 
-            rdd.response_dct_lst[resRoomId] = rdd.response_dct_lst[resRoomId].filter(elem => elem.email != email && elem.response != res) 
-            console.log(rdd.user_response_lst)
-            console.log(rdd.response_dct_lst)
+            rdd.user_response_lst[email] = rdd.user_response_lst[email].filter(resObj => resObj !== res) 
+            rdd.response_dct_lst[resRoomId] = rdd.response_dct_lst[resRoomId].filter(elem => elem.email != email && elem.response !== res) 
             //rdd.response_dct_lst[resRoomId].forEach(elem => {
             //    const resWrite = elem.response
             //})
@@ -76,7 +74,6 @@ api.get("/connect/:id", async(req, res) => {
             res.end()
         })
     }catch(e) {
-        console.log(e)
         return res.json({
             "error": true,
             "message": e 
@@ -120,7 +117,6 @@ api.post("/op/:id", async(req, res) => {
 
         return res.json({})
     }catch(e) {
-        console.log(e)
         return res.status(400).json({
             "error" : true,
             "message": "invalid doc"
@@ -129,11 +125,17 @@ api.post("/op/:id", async(req, res) => {
 })
 
 api.post("/presence/:id", async(req, res) => {
-    const idx = req.body.index
-    const length = req.body.length
+    if(req.body.cursor == undefined || req.body.session_id == undefined || req.body.name == undefined) {
+        return res.status(400).json({
+            error: true,
+            "message": "payload is missing one or more arguments"
+        })
+    }
+    const idx = req.body.cursor.index
+    const length = req.body.cursor.length
     // console.log(rdd.presence_cursor[req.params.id])
     if(idx == null || idx == undefined || length == undefined || length == null) {
-        return res.json({
+        return res.status(400).json({
             error: true,
             "message": "payload is missing one or more arguments"
         })

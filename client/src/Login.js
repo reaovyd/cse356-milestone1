@@ -1,6 +1,7 @@
 import React, {useState, useEffect}from 'react';
 import Crud from './Crud.js'
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const SignupPage = () => {
     const [nameText, setNameText] = useState('')
@@ -61,6 +62,7 @@ const LoginPage = () => {
         // console.log(email)
         // console.log(passwordText)
         Crud.loginPost(email, passwordText).then(res => {
+            window.localStorage.setItem("name", res.data.name) 
             navigate("/home")
         }).catch(err => {
             console.error(err)

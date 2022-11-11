@@ -52,6 +52,7 @@ const Home = () => {
     const logoutHandler = (e) => {
         e.preventDefault()
         Crud.logoutPost().then(res => {
+            window.localStorage.removeItem("name")
             navigate("/")
         }).catch(err => {
             console.error(err)

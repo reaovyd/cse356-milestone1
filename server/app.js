@@ -9,6 +9,7 @@ const Keygrip = require("keygrip")
 const collectionRouter = require("./controllers/collectionRouter")
 const middleware = require("./middlewareUtil")
 const mediaRouter = require("./controllers/mediaRouter")
+const path = require("path")
 
 mongoose.connect("mongodb://127.0.0.1:27017/cse356").then(res => {
     console.log("Successfully connected to Mongo instance")
@@ -28,21 +29,25 @@ app.use(cors(
 app.use(cookieSession({
     name : "session",
     keys: new Keygrip(["key1"], "SHA384"),
+    httpOnly: false
 }))
 
 app.use(express.json())
-app.use(express.static("build"))
+
 
 app.use((req, res, next) => {
     res.setHeader("X-CSE356", "630a8972047a1139b66dbc48")
     next()
 })
 
-
-
 app.use("/users", userRouter)
-
 app.use(middleware.tokenMiddleware)
+app.use("/", express.static("build"))
+app.use("/home", express.static("build"))
+app.use("/edit/:id", express.static("build"))
+
+
+
 app.use("/api", api)
 app.use("/collection", collectionRouter)
 app.use("/media", mediaRouter)

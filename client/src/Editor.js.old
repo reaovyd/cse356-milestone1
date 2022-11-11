@@ -46,7 +46,7 @@
 //             }).catch(err => {
 //             })
 //         })
-\/     }, [])
+//     }, [])
 //     return (
 //         <div id="editor" ref={wrapperRef}>
 //         </div>
